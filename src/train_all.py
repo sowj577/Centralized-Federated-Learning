@@ -17,7 +17,7 @@ if __name__ == "__main__":
     X_train, y_train, X_test, y_test = get_data('all', 'mnist', 'non_iid', 'unbalanced')
 
     model= get_model(DATA)
-    model.compile(optimizer='sgd', loss='categorical_crossentropy', metrics=['accuracy'])
+    model.compile(optimizer='sgd', loss='categorical_crossentropy', metrics=['accuracy', 'loss'])
     model.fit(X_train,y_train, epochs=1,batch_size=10,validation_data=(X_test, to_categorical(y_test, num_classes=10)))
     y_pred = model.predict(X_test)
     print('Accuracy: ', accuracy_score(y_test, np.argmax(y_pred, axis=1)))

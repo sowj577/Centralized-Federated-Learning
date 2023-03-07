@@ -32,15 +32,38 @@ def get_data(client,data='cifar_10',iid="iid",balanced='balanced'):
         X_train=None
         y_train = None
     else:
-        X_train = pd.read_csv(f'data/{data}/{iid}_{balanced}/{client}_X_train.csv',index_col=0)
-        y_train = pd.read_csv(f'data/{data}/{iid}_{balanced}/{client}_y_train.csv',index_col=0)
+        #X_train = pd.read_csv(f'data/{data}/{iid}_{balanced}/{client}_X_train.csv',index_col=0)
+        #y_train = pd.read_csv(f'data/{data}/{iid}_{balanced}/{client}_y_train.csv',index_col=0)
+        X_train = pd.read_csv(f'data/{data}/{iid}_{balanced}/{client}_X_train.csv')
+        y_train = pd.read_csv(f'data/{data}/{iid}_{balanced}/{client}_y_train.csv')
         X_train = X_train / 255.0
         X_train = X_train.values.reshape(X_train.shape[0], pixel, pixel, rgb)
         y_train = y_train['label'].values
         y_train = to_categorical(y_train, num_classes=10)
 
 
-    X_test = pd.read_csv(f'data/{data}/test.csv', index_col=0)
+    X_test = pd.read_csv(f'data/{data}/test.csv')
+    #print(X_test)
+    y_test = X_test['label']
+    X_test.drop('label', inplace=True, axis=1)
+    X_test = X_test / 255.0
+    X_test = X_test.values.reshape(X_test.shape[0], pixel, pixel, rgb)
+    y_test = y_test.values
+    return X_train,y_train,X_test,y_test
+
+
+def get_model(data_name):
+    """
+    Creates LeNet-5 model.
+    """
+    X_train = X_train / 255.0
+    X_train = X_train.values.reshape(X_train.shape[0], pixel, pixel, rgb)
+    y_train = y_train['label'].values
+    y_train = to_categorical(y_train, num_classes=10)
+
+
+    X_test = pd.read_csv(f'data/{data}/test.csv')
+    #print(X_test)
     y_test = X_test['label']
     X_test.drop('label', inplace=True, axis=1)
     X_test = X_test / 255.0

@@ -50,8 +50,8 @@ class Server:
             room=sid,
             callback=start_training_callback,
         )
-
-    def run_server(self, host="0.0.0.0", port=5000):
+	# changed to localhost from "0.0.0.0"
+    def run_server(self, host="192.168.0.21", port=5000):
         web.run_app(self.app, host=host, port=port)
 
     def evaluate(self):
@@ -60,6 +60,7 @@ class Server:
 
     async def fl_update(self, sid, data):
         for layer in data.keys():
+            print('Decoding data layer (Server side)')
             temp_weight = decode(data[layer])
             if len(self.average_weights[layer]) == 2:
                 self.average_weights[layer][0] += (temp_weight[0] / len(self.connected_nodes))
@@ -122,5 +123,5 @@ class Server:
 
 
 if __name__ == "__main__":
-    fl_server = Server(req_nodes=2, comunication_rounds=1)
+    fl_server = Server(req_nodes=1, comunication_rounds=2)
     fl_server.run_server()

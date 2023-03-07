@@ -20,13 +20,16 @@ class Client:
         self.X_train, self.y_train, self.X_test, self.y_test = get_data(self.client, 'mnist', 'non_iid', 'unbalanced')
         self.model = None
         self.epochs = epochs
+        print('Class initialization complete')
 
     def connect(self):
+        print(self.server)
         self.sio.connect(url=self.server)
 
     def register_handles(self):
         self.sio.on("connection_received", self.connection_received)
         self.sio.on("start_training", self.start_training)
+        self.sio.on("end_session", self.disconnect)
 
     def connection_received(self):
         print(f"Server at {self.server} returned success")
@@ -42,22 +45,27 @@ class Client:
         self.send_updates()
 
     def send_updates(self):
+        print('Sending updates...')
         model_weights = dict()
         for layer in self.model.layers:
             if layer.trainable_weights:
                 model_weights[layer.name] = encode_layer(layer.get_weights())
-
+        print('Emitting fl_update signal')
         self.sio.emit("fl_update", data=model_weights)
 
     def disconnect(self):
+        print('Invoking disconnect (client)')
         self.model.save("lenet_5.h5")
+        self.sio.disconnect()
         return
 
     def end_session(self, data):
         model_weights = decode(data['model_weights'])
         self.model.set_weights(model_weights)
+        print('Received end_session signal from server')
 
 
 if __name__ == "__main__":
-    node = Client(address="http://0.0.0.0:5000", client="client" + str(sys.argv[1]), epochs=1)
+    node = Client(address="http://192.168.0.21:5000", client="client" + str(sys.argv[1]), epochs=int(sys.argv[2]))
     node.connect()
+    node.disconnect()
